@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlin.random.Random
 
 class OtpActivity : AppCompatActivity() {
 
@@ -36,6 +35,11 @@ class OtpActivity : AppCompatActivity() {
         initViews()
         initFirebase()
         setupClickListeners()
+
+        val prefill = intent.getStringExtra("prefill_username")
+        if (!prefill.isNullOrBlank()) {
+            etUsername.setText(prefill)
+        }
     }
 
     private fun initViews() {
@@ -96,6 +100,16 @@ class OtpActivity : AppCompatActivity() {
     }
 
     private fun verifyOtp(enteredOtp: String) {
+        if (generatedOtp.isBlank()) {
+            Toast.makeText(this, "Please send OTP first", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (enteredOtp.length != 6) {
+            Toast.makeText(this, "OTP must be 6 digits", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (enteredOtp == generatedOtp) {
             Toast.makeText(this, "OTP Verified Successfully", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, HomeActivity::class.java))

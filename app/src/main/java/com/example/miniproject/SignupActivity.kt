@@ -17,6 +17,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import android.util.Patterns
 
 class SignupActivity : AppCompatActivity() {
 
@@ -78,6 +79,16 @@ class SignupActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (!Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+                etUsername.error = "Enter a valid email"
+                return@setOnClickListener
+            }
+
+            if (password.length < 6) {
+                etPassword.error = "Password must be at least 6 characters"
+                return@setOnClickListener
+            }
+
             signupWithEmail(username, password, fullName)
         }
 
@@ -92,6 +103,7 @@ class SignupActivity : AppCompatActivity() {
     }
 
     private fun signupWithEmail(email: String, password: String, fullName: String) {
+        btnSignup.isEnabled = false
         lifecycleScope.launch {
             try {
                 firebaseAuth.createUserWithEmailAndPassword(email, password).await()
@@ -103,8 +115,11 @@ class SignupActivity : AppCompatActivity() {
 
                 user?.updateProfile(profileUpdates)?.await()
 
-                Toast.makeText(this@SignupActivity, "Signup Successful", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this@SignupActivity, HomeActivity::class.java))
+                Toast.makeText(this@SignupActivity, "Signup successful. Verify OTP", Toast.LENGTH_SHORT).show()
+                startActivity(
+                    Intent(this@SignupActivity, OtpActivity::class.java)
+                        .putExtra("prefill_username", email)
+                )
                 finish()
             } catch (e: Exception) {
                 Toast.makeText(
@@ -112,6 +127,8 @@ class SignupActivity : AppCompatActivity() {
                     "Signup failed: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
+            } finally {
+                btnSignup.isEnabled = true
             }
         }
     }
