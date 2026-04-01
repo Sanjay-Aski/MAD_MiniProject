@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_bg">
+
+    <!-- MAP VIEW (Background) -->
+    <org.osmdroid.views.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.fragments.MapFragment" />
+
+    <!-- MOTION DATA OVERLAY (Top-Left Corner) -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="12dp"
+        android:background="@drawable/rounded_dark_bg"
+        android:padding="12dp"
+        android:gravity="start">
+
+        <!-- COMPASS & HEADING -->
+        <TextView
+            android:id="@+id/tv_compass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🧭 COMPASS\n═══════════════════\nN (0°)\nHeading: 0°"
+            android:textColor="@color/accent_blue"
+            android:textSize="11sp"
+            android:typeface="monospace"
+            android:layout_marginBottom="8dp" />
+
+        <!-- DEVICE TILT -->
+        <TextView
+            android:id="@+id/tv_tilt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📱 DEVICE TILT\n═══════════════════\nFlat/Level\nPitch: 0° Roll: 0°"
+            android:textColor="@color/accent_green"
+            android:textSize="11sp"
+            android:typeface="monospace"
+            android:layout_marginBottom="8dp" />
+
+        <!-- MOTION INTENSITY -->
+        <TextView
+            android:id="@+id/tv_motion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚡ MOTION\n═══════════════════\n🟢 Stable\nAccel: 9.80g"
+            android:textColor="@color/accent_orange"
+            android:textSize="11sp"
+            android:typeface="monospace" />
+
+    </LinearLayout>
+
+    <!-- ROUTE DIRECTION OVERLAY (Top-Right Corner) -->
+    <TextView
+        android:id="@+id/tv_direction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="12dp"
+        android:background="@drawable/rounded_dark_bg"
+        android:padding="12dp"
+        android:text="🗺️ ROUTE\n═════════════════\n↑ NORTH\nAzimuth: 0°\n0 GPS Points"
+        android:textColor="@color/accent_purple"
+        android:textSize="11sp"
+        android:typeface="monospace"
+        android:gravity="end"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="12dp" />
+
+</FrameLayout>
+
