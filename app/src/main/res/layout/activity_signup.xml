@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Runsense"
+                android:textSize="26sp"
+                android:letterSpacing="0.08"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp" />
+        </FrameLayout>
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Full Name EditText -->
+            <EditText
+                android:id="@+id/etSignupFullName"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="Full Name"
+                android:inputType="text"
+                android:background="@drawable/edittext_background"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#999999"
+                android:layout_marginBottom="15dp" />
+
+            <!-- Username EditText -->
+            <EditText
+                android:id="@+id/etSignupUsername"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="Username / Email"
+                android:inputType="text"
+                android:background="@drawable/edittext_background"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#999999"
+                android:layout_marginBottom="15dp" />
+
+            <!-- Password EditText -->
+            <EditText
+                android:id="@+id/etSignupPassword"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:background="@drawable/edittext_background"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#999999"
+                android:layout_marginBottom="15dp" />
+
+            <!-- Date of Birth EditText -->
+            <EditText
+                android:id="@+id/etSignupDOB"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="DOB (DD/MM/YYYY)"
+                android:inputType="date"
+                android:background="@drawable/edittext_background"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#999999"
+                android:layout_marginBottom="15dp" />
+
+            <!-- City EditText -->
+            <EditText
+                android:id="@+id/etSignupCity"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="City"
+                android:inputType="text"
+                android:background="@drawable/edittext_background"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#999999"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Sign Up Button -->
+            <Button
+                android:id="@+id/btnSignup"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:text="Sign Up"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:background="@drawable/button_background"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Login Link -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginBottom="30dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Already Have an Account? "
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvLoginHere"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Login Here"
+                    android:textColor="#4FC3F7"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Google Sign Up Button -->
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/googleSignUpButton"
+                android:layout_width="match_parent"
+                android:layout_height="45dp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
