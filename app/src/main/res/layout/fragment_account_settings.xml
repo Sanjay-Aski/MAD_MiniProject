@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/dark_bg">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- User Profile Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center">
+
+                    <!-- Profile Avatar placeholder -->
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@color/gray"
+                        android:contentDescription="Profile Picture"
+                        android:layout_marginBottom="12dp"
+                        tools:ignore="ImageContrastCheck" />
+
+                    <TextView
+                        android:id="@+id/tv_user_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:gravity="center" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Name Field -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Personal Information"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Full Name"
+                android:textSize="12sp"
+                android:textColor="@color/gray"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="4dp" />
+
+            <EditText
+                android:id="@+id/et_name"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="Full Name"
+                android:textColorHint="@color/gray"
+                android:textColor="@color/white"
+                android:background="@color/card_bg"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_margin="8dp"
+                android:inputType="text" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Email Address"
+                android:textSize="12sp"
+                android:textColor="@color/gray"
+                android:layout_marginStart="8dp" />
+
+            <!-- Email Field -->
+            <EditText
+                android:id="@+id/et_email"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="Email"
+                android:textColorHint="@color/gray"
+                android:textColor="@color/white"
+                android:background="@color/card_bg"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_margin="8dp"
+                android:inputType="textEmailAddress" />
+
+            <!-- Physical Metrics -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Physical Metrics"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Height and Weight in a grid -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Height (cm)"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray"
+                    android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Weight (kg)"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray"
+                    android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Age"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et_height"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:hint="Height (cm)"
+                    android:textColorHint="@color/gray"
+                    android:textColor="@color/white"
+                    android:background="@color/card_bg"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_margin="8dp"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/et_weight"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:hint="Weight (kg)"
+                    android:textColorHint="@color/gray"
+                    android:textColor="@color/white"
+                    android:background="@color/card_bg"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_margin="8dp"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/et_age"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:hint="Age"
+                    android:textColorHint="@color/gray"
+                    android:textColor="@color/white"
+                    android:background="@color/card_bg"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_margin="8dp"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <!-- Gender Selection -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gender"
+                android:textSize="14sp"
+                android:textColor="@color/gray"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp" />
+
+            <RadioGroup
+                android:id="@+id/rg_gender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="8dp">
+
+                <RadioButton
+                    android:id="@+id/rb_male"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Male"
+                    android:textColor="@color/white"
+                    android:buttonTint="@color/accent_blue" />
+
+                <RadioButton
+                    android:id="@+id/rb_female"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Female"
+                    android:textColor="@color/white"
+                    android:buttonTint="@color/accent_blue" />
+            </RadioGroup>
+
+            <!-- Preferences -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Preferences"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Per-Run Target Limits"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="10dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Distance Target (km)"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray" />
+
+                    <EditText
+                        android:id="@+id/et_target_distance"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Distance target (km)"
+                        android:textColorHint="@color/gray"
+                        android:textColor="@color/white"
+                        android:background="@color/dark_bg"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:inputType="numberDecimal" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Steps Target"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray" />
+
+                    <EditText
+                        android:id="@+id/et_target_steps"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Steps target"
+                        android:textColorHint="@color/gray"
+                        android:textColor="@color/white"
+                        android:background="@color/dark_bg"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:inputType="number" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Calories Target (cal)"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray" />
+
+                    <EditText
+                        android:id="@+id/et_target_calories"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Calories target (cal)"
+                        android:textColorHint="@color/gray"
+                        android:textColor="@color/white"
+                        android:background="@color/dark_bg"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:inputType="numberDecimal" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Duration Target (minutes)"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray" />
+
+                    <EditText
+                        android:id="@+id/et_target_duration"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Duration target (minutes)"
+                        android:textColorHint="@color/gray"
+                        android:textColor="@color/white"
+                        android:background="@color/dark_bg"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:inputType="number" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"
+                android:layout_margin="16dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Buttons at bottom -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@color/dark_bg">
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Save Changes"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/accent_blue"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_logout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Logout"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/accent_red" />
+    </LinearLayout>
+</LinearLayout>
