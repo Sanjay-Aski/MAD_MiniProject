@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_disc_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Runner Name"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_disc_steps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="👟 0 steps  🔥 0 kcal"
+            android:textSize="12sp"
+            android:textColor="@color/text_secondary" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_send_request"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="Add Friend"
+        android:textSize="12sp"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/accent_blue"
+        style="@style/Widget.MaterialComponents.Button" />
+
+</LinearLayout>

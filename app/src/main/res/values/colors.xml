@@ -33,4 +33,9 @@
     <!-- Navigation Colors -->
     <color name="nav_icon_color">@color/gray</color>
     <color name="nav_text_color">@color/gray</color>
+    
+    <!-- Text Colors -->
+    <color name="text_secondary">#888888</color>
+    <color name="text_tertiary">#555555</color>
+
 </resources>
