@@ -74,14 +74,72 @@ class RunTrackingViewModel(application: Application) : AndroidViewModel(applicat
     private val _successMessage = MutableLiveData<String>()
     val successMessage: LiveData<String> = _successMessage
 
-    // Internal state
     private var startTime = 0L
     private var pausedTime = 0L
     private var totalPausedDuration = 0L
     private var userWeight = 70.0 // default weight in kg
 
+    // Base stats from past runs (loaded on init)
+    private var baseTotalSteps = 0L
+    private var baseTotalCalories = 0.0
+    private var baseTotalDistance = 0.0
+    private var baseTotalRuns = 0
+
+    // To throttle Firebase updates during a run
+    private var lastFirebaseSyncTime = 0L
+
     init {
         _runId.value = UUID.randomUUID().toString()
+        loadBaseStats()
+    }
+
+    private fun loadBaseStats() {
+        viewModelScope.launch {
+            try {
+                val allRuns = localRunRepository.getRunSessions()
+                
+                // Filter for current calendar month
+                val calendar = java.util.Calendar.getInstance()
+                val currentMonth = calendar.get(java.util.Calendar.MONTH)
+                val currentYear = calendar.get(java.util.Calendar.YEAR)
+                
+                val currentMonthRuns = allRuns.filter { run ->
+                    calendar.timeInMillis = run.startTime
+                    calendar.get(java.util.Calendar.MONTH) == currentMonth &&
+                    calendar.get(java.util.Calendar.YEAR) == currentYear
+                }
+
+                baseTotalSteps = currentMonthRuns.sumOf { it.steps.toLong() }
+                baseTotalCalories = currentMonthRuns.sumOf { it.calories }
+                baseTotalDistance = currentMonthRuns.sumOf { it.distance }
+                baseTotalRuns = currentMonthRuns.size
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load base stats: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Sync realtime stats to Firebase so friends see updates on the leaderboard
+     * Throttled to max once every 10 seconds to save bandwidth.
+     */
+    private fun syncRealtimeStatsToFirebase() {
+        val now = System.currentTimeMillis()
+        if (now - lastFirebaseSyncTime < 10_000) return // Throttle
+        lastFirebaseSyncTime = now
+
+        viewModelScope.launch {
+            val currentSteps = _stepCount.value ?: 0
+            val currentCalories = _calories.value ?: 0.0
+            val currentDistance = _distance.value ?: 0.0
+
+            firebaseRepository.updateMyStats(
+                totalSteps = baseTotalSteps + currentSteps,
+                totalCalories = baseTotalCalories + currentCalories,
+                totalDistance = baseTotalDistance + currentDistance,
+                totalRuns = baseTotalRuns // (not incremented until run ends)
+            )
+        }
     }
 
     /**
@@ -238,6 +296,7 @@ class RunTrackingViewModel(application: Application) : AndroidViewModel(applicat
     fun updateStepMetrics(steps: Int) {
         _stepCount.value = steps
         updateCalories()
+        syncRealtimeStatsToFirebase()
     }
 
     /**
