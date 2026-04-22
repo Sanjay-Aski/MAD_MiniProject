@@ -105,6 +105,70 @@ class NotificationService(private val context: Context) {
         notificationManager.notify(5, notification)
     }
 
+    /**
+     * Show progress milestone notification (30%, 60%, 80%, 100%)
+     */
+    fun showProgressMilestoneNotification(progressPercent: Int, distance: Double, duration: Long) {
+        val emoji = when (progressPercent) {
+            30 -> "🔥"
+            60 -> "💪"
+            80 -> "⚡"
+            100 -> "🎉"
+            else -> "📍"
+        }
+        
+        val message = when (progressPercent) {
+            30 -> "Great start! You're 30% through your run."
+            60 -> "Halfway done! Keep pushing, you're doing great!"
+            80 -> "Almost there! 80% complete. Final push!"
+            100 -> "Congratulations! Run completed successfully!"
+            else -> "Run progress: $progressPercent%"
+        }
+        
+        val notificationId = 200 + progressPercent // Unique IDs: 230, 260, 280, 2100
+        
+        val notification = baseBuilder(null)
+            .setContentTitle("$emoji Run Progress - $progressPercent%")
+            .setContentText(message)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText("$message\n\nDistance: ${String.format("%.2f", distance)} km\nTime: ${formatDuration(duration)}")
+            )
+            .setAutoCancel(true)
+            .setOngoing(false)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setVibrate(longArrayOf(0, 250, 250, 250)) // Haptic feedback
+            .build()
+        
+        notificationManager.notify(notificationId, notification)
+    }
+
+    /**
+     * Show achievement badges for hitting milestones during run
+     */
+    fun showAchievementNotification(title: String, description: String, emoji: String = "🏅") {
+        val notification = baseBuilder(null)
+            .setContentTitle("$emoji Achievement!")
+            .setContentText(title)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(description)
+            )
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVibrate(longArrayOf(0, 200, 100, 200)) // Double vibration
+            .build()
+        
+        notificationManager.notify(300, notification)
+    }
+
+    private fun formatDuration(seconds: Long): String {
+        val hours = seconds / 3600
+        val minutes = (seconds % 3600) / 60
+        val secs = seconds % 60
+        return String.format("%02d:%02d:%02d", hours, minutes, secs)
+    }
+
     private fun baseBuilder(contentIntent: PendingIntent?): NotificationCompat.Builder {
         val largeIcon = BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher)
         return NotificationCompat.Builder(context, channelId)

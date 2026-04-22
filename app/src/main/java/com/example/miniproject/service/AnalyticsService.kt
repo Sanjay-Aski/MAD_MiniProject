@@ -231,7 +231,7 @@ class AnalyticsService(private val userWeight: Double = 70.0) {
         
         _personalRecords.value = records
         
-        Log.d(TAG, "🏆 Personal Records Updated:")
+        Log.d(TAG, " Personal Records Updated:")
         records.forEach { (key, value) ->
             Log.d(TAG, "   $key: $value")
         }

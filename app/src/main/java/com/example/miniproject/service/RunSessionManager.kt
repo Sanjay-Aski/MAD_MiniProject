@@ -80,7 +80,7 @@ class RunSessionManager {
         _sessionState.value = RunSessionState.RUNNING
         _elapsedTime.value = 0L
         
-        Log.d(TAG, "✅ Run STARTED - ID: $currentRunId at ${java.text.SimpleDateFormat("HH:mm:ss").format(sessionStartTime)}")
+        Log.d(TAG, "Run STARTED - ID: $currentRunId at ${java.text.SimpleDateFormat("HH:mm:ss").format(sessionStartTime)}")
         notifyStateChanged(RunSessionState.RUNNING)
         
         return newRun
@@ -92,14 +92,14 @@ class RunSessionManager {
      */
     fun pauseRun(): Boolean {
         if (_sessionState.value != RunSessionState.RUNNING) {
-            Log.w(TAG, "⚠️ Cannot pause - run not in progress")
+            Log.w(TAG, "⚠️Cannot pause - run not in progress")
             return false
         }
         
         sessionPausedTime = System.currentTimeMillis()
         _sessionState.value = RunSessionState.PAUSED
         
-        Log.d(TAG, "⏸️ Run PAUSED at ${java.text.SimpleDateFormat("HH:mm:ss").format(sessionPausedTime)}")
+        Log.d(TAG, " Run PAUSED at ${java.text.SimpleDateFormat("HH:mm:ss").format(sessionPausedTime)}")
         notifyStateChanged(RunSessionState.PAUSED)
         
         return true
@@ -119,7 +119,7 @@ class RunSessionManager {
         totalPausedDuration += pausedDuration
         _sessionState.value = RunSessionState.RUNNING
         
-        Log.d(TAG, "▶️ Run RESUMED - Paused for ${pausedDuration}ms")
+        Log.d(TAG, " Run RESUMED - Paused for ${pausedDuration}ms")
         notifyStateChanged(RunSessionState.RUNNING)
         
         return true
@@ -173,7 +173,7 @@ class RunSessionManager {
         _sessionState.value = RunSessionState.ENDED
         
         Log.d(TAG, """
-            ✅ Run ENDED - Summary:
+             Run ENDED - Summary:
             ├─ Duration: ${durationSeconds}s (${durationSeconds / 60}m)
             ├─ Distance: ${String.format("%.3f", finalDistance)} km
             ├─ Avg Speed: ${String.format("%.2f", avgSpeed)} km/h

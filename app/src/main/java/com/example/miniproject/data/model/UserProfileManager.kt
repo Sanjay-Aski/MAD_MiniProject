@@ -86,7 +86,7 @@ class UserProfileManager(private val firebaseRepository: FirebaseRepository) {
             ├─ Goal Type: DISTANCE
             ├─ Target: $weeklyGoalValue
             ├─ Achieved: ${String.format("%.2f", achievedValue)}
-            └─ Status: ${if (met) "✅ ACHIEVED" else "❌ NOT MET"}
+            └─ Status: ${if (met) " ACHIEVED" else "NOT MET"}
         """.trimIndent())
         
         return met
@@ -136,7 +136,7 @@ class UserProfileManager(private val firebaseRepository: FirebaseRepository) {
         return try {
             firebaseRepository.saveUserProfile(profile)
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "❌ Error saving profile: ${e.message}", e)
+            android.util.Log.e(TAG, " Error saving profile: ${e.message}", e)
             false
         }
     }
@@ -148,7 +148,7 @@ class UserProfileManager(private val firebaseRepository: FirebaseRepository) {
         return try {
             firebaseRepository.getUserProfile(userId)
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "❌ Error loading profile: ${e.message}", e)
+            android.util.Log.e(TAG, " Error loading profile: ${e.message}", e)
             null
         }
     }

@@ -64,7 +64,7 @@ class MotionSensorService(context: Context) : SensorEventListener {
      */
     fun startTracking() {
         if (isTracking) {
-            Log.d(TAG, "⚠️ Motion tracking already active")
+            Log.d(TAG, "Motion tracking already active")
             return
         }
         
@@ -83,7 +83,7 @@ class MotionSensorService(context: Context) : SensorEventListener {
         }
         
         Log.d(TAG, """
-            ✅ Motion Tracking Started:
+            Motion Tracking Started:
             ├─ Accelerometer: ${accelerometer?.name ?: "NOT AVAILABLE"}
             ├─ Gyroscope: ${gyroscope?.name ?: "NOT AVAILABLE"}
             └─ Magnetometer: ${magnetometer?.name ?: "NOT AVAILABLE"}
@@ -99,8 +99,8 @@ class MotionSensorService(context: Context) : SensorEventListener {
         isTracking = false
         sensorManager.unregisterListener(this)
         
-        Log.d(TAG, "⏹️ Motion Tracking Stopped")
-        Log.d(TAG, "📊 Motion history recorded: ${motionBuffer.size} samples")
+        Log.d(TAG, " Motion Tracking Stopped")
+        Log.d(TAG, " Motion history recorded: ${motionBuffer.size} samples")
     }
     
     override fun onSensorChanged(event: SensorEvent?) {
@@ -203,7 +203,7 @@ class MotionSensorService(context: Context) : SensorEventListener {
             ├─ Tilt: Pitch=${String.format("%.1f", pitch)}° Roll=${String.format("%.1f", roll)}°
             ├─ Accel: X=${String.format("%.2f", accelX)}g Y=${String.format("%.2f", accelY)}g Z=${String.format("%.2f", accelZ)}g
             ├─ Total Acceleration: ${String.format("%.2f", totalAcceleration)}g
-            ├─ Moving: ${if (isMoving) "🔴 YES" else "🟢 NO"}
+            ├─ Moving: ${if (isMoving) " YES" else " NO"}
             └─ Motion Magnitude: ${String.format("%.2f", motion.magnitude)}
         """.trimIndent())
     }
@@ -261,7 +261,7 @@ class MotionSensorService(context: Context) : SensorEventListener {
     fun getMotionSummary(): String {
         val motion = getCurrentMotion()
         return """
-            🧭 Motion Summary:
+            Motion Summary:
             ├─ Direction: ${getCompassDirection(motion.azimuth)}
             ├─ Orientation: ${getDeviceOrientation(motion.pitch, motion.roll)}
             ├─ Intensity: ${getMotionIntensity(motion.magnitude)}
