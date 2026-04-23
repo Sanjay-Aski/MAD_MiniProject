@@ -67,6 +67,9 @@
         // Charts
         implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+        // Gson for JSON serialization
+        implementation("com.google.code.gson:gson:2.10.1")
+
         // Lifecycle
         implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
         implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")

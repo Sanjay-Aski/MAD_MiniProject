@@ -7,9 +7,15 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.LOCAL_MAC_ADDRESS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Bluetooth Permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <!-- Map Tile Cache -->
     <uses-permission android:name="android.permission.ACCESS_CACHE_FILESYSTEM" />
 
@@ -40,6 +46,12 @@
         <activity
             android:name=".RunTrackingActivity"
             android:launchMode="singleTop" />
+        
+        <!-- Peer Discovery Service for Bluetooth communication -->
+        <service
+            android:name=".service.PeerDiscoveryService"
+            android:enabled="true"
+            android:exported="false" />
 
     </application>
 

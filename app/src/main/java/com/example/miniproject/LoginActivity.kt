@@ -18,6 +18,9 @@ import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import android.util.Patterns
+import com.example.miniproject.service.CloudDataSyncService
+import com.example.miniproject.ui.dialog.EmailSelectionDialog
+import com.example.miniproject.util.EmailPreferenceManager
 
 class LoginActivity : AppCompatActivity() {
 
@@ -121,9 +124,21 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 firebaseAuth.signInWithEmailAndPassword(username, password).await()
-                Toast.makeText(this@LoginActivity, "Login Successful", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-                finish()
+                val user = firebaseAuth.currentUser
+                
+                if (user != null) {
+                    // Get user's email address
+                    val userEmail = user.email ?: username
+                    
+                    // Show email selection dialog with detected emails
+                    showEmailSelectionDialog(userEmail, user.uid)
+                } else {
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Login failed: User not found",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } catch (e: Exception) {
                 Toast.makeText(
                     this@LoginActivity,
@@ -132,6 +147,87 @@ class LoginActivity : AppCompatActivity() {
                 ).show()
             } finally {
                 btnLogin.isEnabled = true
+            }
+        }
+    }
+
+    private fun showEmailSelectionDialog(detectedEmail: String, userId: String) {
+        // Get any additional emails from Firebase user providers
+        val emails = mutableListOf(detectedEmail)
+        
+        // Add emails from linked providers if available
+        firebaseAuth.currentUser?.providerData?.forEach { userInfo ->
+            userInfo.email?.let { email ->
+                if (!emails.contains(email)) {
+                    emails.add(email)
+                }
+            }
+        }
+
+        EmailSelectionDialog(
+            context = this,
+            emails = emails,
+            onEmailSelected = { selectedEmail ->
+                proceedWithLogin(selectedEmail, userId)
+            },
+            onCancel = {
+                btnLogin.isEnabled = true
+                Toast.makeText(
+                    this,
+                    "Login cancelled",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        ).show()
+    }
+
+    private fun proceedWithLogin(selectedEmail: String, userId: String) {
+        lifecycleScope.launch {
+            try {
+                // Show sync progress
+                Toast.makeText(
+                    this@LoginActivity,
+                    "📥 Syncing your data from cloud...",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // Save selected email preference
+                EmailPreferenceManager.saveSelectedEmail(this@LoginActivity, selectedEmail)
+
+                // Sync cloud data to local storage
+                val syncService = CloudDataSyncService(this@LoginActivity)
+                val syncSuccess = syncService.syncUserDataFromCloud(userId)
+
+                if (syncSuccess) {
+                    Toast.makeText(
+                        this@LoginActivity,
+                        " Login Successful ",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        this@LoginActivity,
+                        " Login Successful ",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                // Navigate to Home Activity
+                val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+                intent.putExtra("selected_email", selectedEmail)
+                intent.putExtra("sync_success", syncSuccess)
+                startActivity(intent)
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Error during sync: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                
+                // Still proceed to home even if sync fails
+                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                finish()
             }
         }
     }
@@ -146,10 +242,21 @@ class LoginActivity : AppCompatActivity() {
             try {
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
                 firebaseAuth.signInWithCredential(credential).await()
-                Toast.makeText(this@LoginActivity, "Google Login Successful", Toast.LENGTH_SHORT)
-                    .show()
-                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-                finish()
+                
+                val user = firebaseAuth.currentUser
+                if (user != null) {
+                    // Get user's email from Google account
+                    val userEmail = user.email ?: "unknown@gmail.com"
+                    
+                    // Show email selection dialog
+                    showEmailSelectionDialog(userEmail, user.uid)
+                } else {
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Google Login failed: User not found",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } catch (e: Exception) {
                 Toast.makeText(
                     this@LoginActivity,

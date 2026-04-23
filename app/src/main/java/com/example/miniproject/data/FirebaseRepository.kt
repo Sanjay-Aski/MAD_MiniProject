@@ -1,6 +1,9 @@
 package com.example.miniproject.data
 
 import android.util.Log
+import com.example.miniproject.data.model.DiscoveringUser
+import com.example.miniproject.data.model.Friend
+import com.example.miniproject.data.model.FriendRequest
 import com.example.miniproject.data.model.GPSPoint
 import com.example.miniproject.data.model.RunSession
 import com.example.miniproject.data.model.UserProfile
@@ -383,4 +386,344 @@ class FirebaseRepository {
 
         return fallbackUserId.ifBlank { null }
     }
+
+    // =====================================================================
+    // FRIEND DISCOVERY
+    // =====================================================================
+
+    /**
+     * Publish this user to `discovery/{uid}` so others can see them.
+     * The document expires (discoveringUntil) after [durationMs] ms.
+     */
+    suspend fun publishDiscoveryPresence(
+        name: String,
+        email: String,
+        totalSteps: Long,
+        totalCalories: Double,
+        durationMs: Long = 60_000L
+    ) {
+        val uid = auth.currentUser?.uid ?: return
+        val data = mapOf(
+            "userId"           to uid,
+            "name"             to name,
+            "email"            to email,
+            "discoveringUntil" to System.currentTimeMillis() + durationMs,
+            "totalSteps"       to totalSteps,
+            "totalCalories"    to totalCalories
+        )
+        try {
+            firestore.collection("discovery").document(uid).set(data).await()
+            Log.d(TAG, "Discovery presence published")
+        } catch (e: Exception) {
+            Log.e(TAG, "publishDiscoveryPresence failed: ${e.message}", e)
+        }
+    }
+
+    /** Remove our own discovery presence document */
+    suspend fun removeDiscoveryPresence() {
+        val uid = auth.currentUser?.uid ?: return
+        try {
+            firestore.collection("discovery").document(uid).delete().await()
+        } catch (e: Exception) {
+            Log.e(TAG, "removeDiscoveryPresence failed: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Real-time listener on `discovery` — calls [onUpdate] whenever the list changes.
+     * Filters out stale entries (discoveringUntil < now) and our own entry.
+     */
+    fun observeDiscoveringUsers(onUpdate: (List<DiscoveringUser>) -> Unit): ListenerRegistration {
+        val myUid = auth.currentUser?.uid ?: ""
+        return firestore.collection("discovery")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e(TAG, "observeDiscoveringUsers error: ${error.message}")
+                    return@addSnapshotListener
+                }
+                val now = System.currentTimeMillis()
+                val list = snapshot?.documents
+                    ?.filter { it.id != myUid }
+                    ?.mapNotNull { doc ->
+                        val until = doc.getLong("discoveringUntil") ?: 0L
+                        if (until < now) return@mapNotNull null
+                        DiscoveringUser(
+                            userId         = doc.getString("userId") ?: "",
+                            name           = doc.getString("name") ?: "",
+                            email          = doc.getString("email") ?: "",
+                            discoveringUntil = until,
+                            totalSteps     = doc.getLong("totalSteps") ?: 0L,
+                            totalCalories  = doc.getDouble("totalCalories") ?: 0.0
+                        )
+                    } ?: emptyList()
+                onUpdate(list)
+            }
+    }
+
+    // =====================================================================
+    // FRIEND REQUESTS
+    // =====================================================================
+
+    /**
+     * Send a friend request to [toUserId].
+     * Writes to `friend_requests/{toUserId}/incoming/{myUid}`.
+     */
+    suspend fun sendFriendRequest(toUserId: String, toName: String = ""): Boolean {
+        val myUid  = auth.currentUser?.uid ?: return false
+        val myName  = auth.currentUser?.displayName
+            ?: firestore.collection("users").document(myUid)
+                .get().await().getString("name") ?: "Runner"
+        val myEmail = auth.currentUser?.email ?: ""
+        return try {
+            val data = mapOf(
+                "requestId"  to myUid,
+                "fromUserId" to myUid,
+                "fromName"   to myName,
+                "fromEmail"  to myEmail,
+                "toUserId"   to toUserId,
+                "sentAt"     to System.currentTimeMillis(),
+                "status"     to FriendRequest.STATUS_PENDING
+            )
+            firestore.collection("friend_requests")
+                .document(toUserId)
+                .collection("incoming")
+                .document(myUid)
+                .set(data).await()
+            Log.d(TAG, "Friend request sent to $toUserId")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "sendFriendRequest failed: ${e.message}", e)
+            false
+        }
+    }
+
+    /**
+     * Real-time listener for incoming requests to the current user.
+     * Listens on `friend_requests/{myUid}/incoming`.
+     */
+    fun observeIncomingRequests(onUpdate: (List<FriendRequest>) -> Unit): ListenerRegistration? {
+        val myUid = auth.currentUser?.uid ?: return null
+        return firestore.collection("friend_requests")
+            .document(myUid)
+            .collection("incoming")
+            .whereEqualTo("status", FriendRequest.STATUS_PENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e(TAG, "observeIncomingRequests error: ${error.message}")
+                    return@addSnapshotListener
+                }
+                val requests = snapshot?.documents?.mapNotNull { doc ->
+                    FriendRequest(
+                        requestId  = doc.id,
+                        fromUserId = doc.getString("fromUserId") ?: "",
+                        fromName   = doc.getString("fromName") ?: "",
+                        fromEmail  = doc.getString("fromEmail") ?: "",
+                        toUserId   = doc.getString("toUserId") ?: "",
+                        sentAt     = doc.getLong("sentAt") ?: 0L,
+                        status     = doc.getString("status") ?: FriendRequest.STATUS_PENDING
+                    )
+                } ?: emptyList()
+                onUpdate(requests)
+            }
+    }
+
+    /**
+     * Accept [fromUserId]'s request:
+     * 1. Add each user to the other's `users/{uid}/friends` sub-collection
+     * 2. Update the request status to "accepted"
+     * 3. Fetch and write the requester's stats too
+     */
+    suspend fun acceptFriendRequest(fromUserId: String, fromName: String, fromEmail: String): Boolean {
+        val myUid = auth.currentUser?.uid ?: return false
+        return try {
+            val now     = System.currentTimeMillis()
+            val myStats = getMyStats()
+
+            // Fetch requester's stats
+            val theirDoc = firestore.collection("users").document(fromUserId)
+                .collection("stats").document("summary").get().await()
+            val theirSteps    = theirDoc.getLong("totalSteps") ?: 0L
+            val theirCalories = theirDoc.getDouble("totalCalories") ?: 0.0
+            val theirDistance = theirDoc.getDouble("totalDistance") ?: 0.0
+            val theirRuns     = theirDoc.getLong("totalRuns")?.toInt() ?: 0
+
+            val myName  = auth.currentUser?.displayName
+                ?: firestore.collection("users").document(myUid)
+                    .get().await().getString("name") ?: "Runner"
+            val myEmail = auth.currentUser?.email ?: ""
+
+            // Write friend record on MY side
+            firestore.collection("users").document(myUid)
+                .collection("friends").document(fromUserId)
+                .set(mapOf(
+                    "friendUserId"   to fromUserId,
+                    "friendName"     to fromName,
+                    "friendEmail"    to fromEmail,
+                    "addedAt"        to now,
+                    "totalSteps"     to theirSteps,
+                    "totalCalories"  to theirCalories,
+                    "totalDistance"  to theirDistance,
+                    "totalRuns"      to theirRuns
+                )).await()
+
+            // Write friend record on THEIR side
+            firestore.collection("users").document(fromUserId)
+                .collection("friends").document(myUid)
+                .set(mapOf(
+                    "friendUserId"   to myUid,
+                    "friendName"     to myName,
+                    "friendEmail"    to myEmail,
+                    "addedAt"        to now,
+                    "totalSteps"     to myStats.first,
+                    "totalCalories"  to myStats.second,
+                    "totalDistance"  to myStats.third,
+                    "totalRuns"      to myStats.fourth
+                )).await()
+
+            // Mark request accepted
+            firestore.collection("friend_requests")
+                .document(myUid).collection("incoming").document(fromUserId)
+                .update("status", FriendRequest.STATUS_ACCEPTED).await()
+
+            Log.d(TAG, "Friend request accepted: $fromUserId")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "acceptFriendRequest failed: ${e.message}", e)
+            false
+        }
+    }
+
+    /** Reject and delete a friend request */
+    suspend fun rejectFriendRequest(fromUserId: String): Boolean {
+        val myUid = auth.currentUser?.uid ?: return false
+        return try {
+            firestore.collection("friend_requests")
+                .document(myUid).collection("incoming").document(fromUserId)
+                .delete().await()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "rejectFriendRequest failed: ${e.message}", e)
+            false
+        }
+    }
+
+    // =====================================================================
+    // FRIENDS LIST  (real-time)
+    // =====================================================================
+
+    /**
+     * Real-time listener for the current user's friends list.
+     * Listens on `users/{myUid}/friends`.
+     */
+    fun observeFriends(onUpdate: (List<Friend>) -> Unit): ListenerRegistration? {
+        val myUid = auth.currentUser?.uid ?: return null
+        return firestore.collection("users").document(myUid)
+            .collection("friends")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e(TAG, "observeFriends error: ${error.message}")
+                    return@addSnapshotListener
+                }
+                val friends = snapshot?.documents?.mapNotNull { doc ->
+                    Friend(
+                        friendUserId   = doc.getString("friendUserId") ?: return@mapNotNull null,
+                        friendName     = doc.getString("friendName") ?: "",
+                        friendEmail    = doc.getString("friendEmail") ?: "",
+                        addedAt        = doc.getLong("addedAt") ?: 0L,
+                        totalSteps     = doc.getLong("totalSteps") ?: 0L,
+                        totalCalories  = doc.getDouble("totalCalories") ?: 0.0,
+                        totalDistance  = doc.getDouble("totalDistance") ?: 0.0,
+                        totalRuns      = doc.getLong("totalRuns")?.toInt() ?: 0
+                    )
+                } ?: emptyList()
+                onUpdate(friends)
+            }
+    }
+
+    /**
+     * Remove a friend from both sides.
+     */
+    suspend fun removeFriend(friendUserId: String): Boolean {
+        val myUid = auth.currentUser?.uid ?: return false
+        return try {
+            firestore.collection("users").document(myUid)
+                .collection("friends").document(friendUserId).delete().await()
+            firestore.collection("users").document(friendUserId)
+                .collection("friends").document(myUid).delete().await()
+            Log.d(TAG, "Removed friend $friendUserId (both sides)")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "removeFriend failed: ${e.message}", e)
+            false
+        }
+    }
+
+    // =====================================================================
+    // USER STATS  (written after every run so friends see up-to-date data)
+    // =====================================================================
+
+    /**
+     * Update `users/{uid}/stats/summary` and then refresh all friends'
+     * cached copy of our stats so their leaderboards stay current.
+     */
+    suspend fun updateMyStats(
+        totalSteps: Long,
+        totalCalories: Double,
+        totalDistance: Double,
+        totalRuns: Int
+    ) {
+        val myUid = auth.currentUser?.uid ?: return
+        try {
+            val statsData = mapOf(
+                "totalSteps"    to totalSteps,
+                "totalCalories" to totalCalories,
+                "totalDistance" to totalDistance,
+                "totalRuns"     to totalRuns,
+                "updatedAt"     to System.currentTimeMillis()
+            )
+            // Save my own stats summary
+            firestore.collection("users").document(myUid)
+                .collection("stats").document("summary")
+                .set(statsData, SetOptions.merge()).await()
+
+            // Update cached stats in all friends' documents
+            val friendDocs = firestore.collection("users").document(myUid)
+                .collection("friends").get().await()
+            for (doc in friendDocs.documents) {
+                val friendId = doc.getString("friendUserId") ?: continue
+                firestore.collection("users").document(friendId)
+                    .collection("friends").document(myUid)
+                    .update(mapOf(
+                        "totalSteps"    to totalSteps,
+                        "totalCalories" to totalCalories,
+                        "totalDistance" to totalDistance,
+                        "totalRuns"     to totalRuns
+                    )).await()
+            }
+            Log.d(TAG, "Stats updated and propagated to friends")
+        } catch (e: Exception) {
+            Log.e(TAG, "updateMyStats failed: ${e.message}", e)
+        }
+    }
+
+    /** Return (steps, calories, distance, runs) for the current user */
+    private suspend fun getMyStats(): Quadruple<Long, Double, Double, Int> {
+        val myUid = auth.currentUser?.uid ?: return Quadruple(0L, 0.0, 0.0, 0)
+        return try {
+            val doc = firestore.collection("users").document(myUid)
+                .collection("stats").document("summary").get().await()
+            Quadruple(
+                doc.getLong("totalSteps") ?: 0L,
+                doc.getDouble("totalCalories") ?: 0.0,
+                doc.getDouble("totalDistance") ?: 0.0,
+                doc.getLong("totalRuns")?.toInt() ?: 0
+            )
+        } catch (e: Exception) {
+            Quadruple(0L, 0.0, 0.0, 0)
+        }
+    }
+
+    /** Simple 4-tuple helper (Kotlin has only up to Triple in stdlib) */
+    private data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
 }
+

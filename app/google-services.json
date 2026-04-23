@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1016228914569",
+    "project_id": "runsense-c9b93",
+    "storage_bucket": "runsense-c9b93.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1016228914569:android:8c0b19313f9da8625f2d58",
+        "android_client_info": {
+          "package_name": "com.example.miniproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1016228914569-vek3jr7opmivc5ibp5k355hjd6kkotfa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.miniproject",
+            "certificate_hash": "0e009af96f3b18830337f0111355acfc5005c7e9"
+          }
+        },
+        {
+          "client_id": "1016228914569-8cilemvsp32a4ijeujef052v5g3jhkv2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3U9Lu-w7CcTUwaP7GUR4iLMHpv-Wele4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1016228914569-8cilemvsp32a4ijeujef052v5g3jhkv2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

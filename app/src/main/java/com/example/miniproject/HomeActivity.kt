@@ -9,7 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.example.miniproject.ui.fragments.DashboardFragment
 import com.example.miniproject.ui.fragments.HistoryFragment
-import com.example.miniproject.ui.fragments.MapFragment
+import com.example.miniproject.ui.fragments.LeaderboardFragment
 import com.example.miniproject.ui.fragments.AccountSettingsFragment
 import com.example.miniproject.ui.fragments.RunDetailsFragment
 
@@ -72,7 +72,7 @@ class HomeActivity : AppCompatActivity() {
             try {
                 val fragment = when (item.itemId) {
                     R.id.nav_dashboard -> DashboardFragment()
-                    R.id.nav_map -> MapFragment()
+                    R.id.nav_leaderboard -> LeaderboardFragment()
                     R.id.nav_analytics -> HistoryFragment()
                     R.id.nav_settings -> AccountSettingsFragment()
                     else -> DashboardFragment()

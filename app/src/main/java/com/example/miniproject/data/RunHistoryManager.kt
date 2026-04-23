@@ -56,10 +56,10 @@ class RunHistoryManager(private val localRunRepository: LocalRunRepository) {
         return try {
             val runs = localRunRepository.getRunSessions()
             _allRuns.value = runs
-            Log.d(TAG, "✅ Loaded ${runs.size} runs from database")
+            Log.d(TAG, "Loaded ${runs.size} runs from database")
             runs
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error loading runs: ${e.message}", e)
+            Log.e(TAG, " Error loading runs: ${e.message}", e)
             emptyList()
         }
     }
@@ -272,11 +272,11 @@ class RunHistoryManager(private val localRunRepository: LocalRunRepository) {
                 val currentRuns = _allRuns.value?.toMutableList() ?: mutableListOf()
                 currentRuns.add(run)
                 _allRuns.value = currentRuns
-                Log.d(TAG, "✅ Run saved: ${run.runId}")
+                Log.d(TAG, "Run saved: ${run.runId}")
             }
             success
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error saving run: ${e.message}", e)
+            Log.e(TAG, "Error saving run: ${e.message}", e)
             false
         }
     }

@@ -25,6 +25,7 @@ import com.example.miniproject.data.LocalRunRepository
 import com.example.miniproject.data.model.GPSPoint
 import com.example.miniproject.data.model.RunSession
 import com.example.miniproject.service.LocationService
+import com.example.miniproject.service.NotificationService
 import com.example.miniproject.service.StepCounterService
 import com.example.miniproject.ui.fragments.MapFragment
 import com.example.miniproject.ui.viewmodel.RunTrackingViewModel
@@ -82,6 +83,13 @@ class RunTrackingActivity : AppCompatActivity() {
     private var stepsTargetHit = false
     private var caloriesTargetHit = false
     private var durationTargetHit = false
+    
+    // Progress milestone tracking (30%, 60%, 80%, 100%)
+    private var progress30Percent = false
+    private var progress60Percent = false
+    private var progress80Percent = false
+    private var progress100Percent = false
+    private var targetDistanceForMilestones = 5.0 // km (can be customized)
     
     // GPS Accuracy Settings
     private val GPS_ACCURACY_THRESHOLD = 20f // meters - ignore worse accuracy
@@ -727,6 +735,11 @@ class RunTrackingActivity : AppCompatActivity() {
         stepsTargetHit = false
         caloriesTargetHit = false
         durationTargetHit = false
+        // Reset progress milestones
+        progress30Percent = false
+        progress60Percent = false
+        progress80Percent = false
+        progress100Percent = false
         persistSessionState()
     }
 
@@ -785,6 +798,47 @@ class RunTrackingActivity : AppCompatActivity() {
 
         if (flagsChanged) {
             persistSessionState()
+        }
+        
+        // Check progress milestones (30%, 60%, 80%, 100%)
+        checkRunProgressMilestones()
+    }
+
+    /**
+     * Check and notify on progress milestones: 30%, 60%, 80%, 100% of target distance
+     */
+    private fun checkRunProgressMilestones() {
+        val distance = viewModel.distance.value ?: 0.0
+        val elapsed = viewModel.elapsedSeconds.value ?: 0L
+        
+        // Calculate progress percentage based on distance target
+        val progressPercent = if (targetDistanceForMilestones > 0) {
+            ((distance / targetDistanceForMilestones) * 100).toInt().coerceAtMost(100)
+        } else {
+            0
+        }
+        
+        // Trigger notifications at each milestone (only once per run)
+        val notificationService = NotificationService(this)
+        
+        if (progressPercent >= 30 && !progress30Percent) {
+            progress30Percent = true
+            notificationService.showProgressMilestoneNotification(30, distance, elapsed)
+        }
+        
+        if (progressPercent >= 60 && !progress60Percent) {
+            progress60Percent = true
+            notificationService.showProgressMilestoneNotification(60, distance, elapsed)
+        }
+        
+        if (progressPercent >= 80 && !progress80Percent) {
+            progress80Percent = true
+            notificationService.showProgressMilestoneNotification(80, distance, elapsed)
+        }
+        
+        if (progressPercent >= 100 && !progress100Percent) {
+            progress100Percent = true
+            notificationService.showProgressMilestoneNotification(100, distance, elapsed)
         }
     }
 
